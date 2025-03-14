@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมแมวรับกล่องนม</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+        }
+
+        #score, #high-score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        #high-score {
+            left: auto;
+            right: 10px;
+        }
+
+        #cat {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            transition: transform 0.1s;
+        }
+
+        .item {
+            position: absolute;
+            width: 40px;
+        }
+
+        /* Popup */
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #popup img {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+
+        #popup button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score">คะแนน: <span id="score-value">0</span></div>
+        <div id="high-score">คะแนนสูงสุด: <span id="high-score-value">0</span></div>
+        <img id="cat" src="cat.png" alt="แมว">
+    </div>
+
+    <div id="popup">
+        <img src="cat_cry.png" alt="แมวร้องไห้">
+        <p>เกมจบแล้ว! คะแนนของคุณ: <span id="final-score">0</span></p>
+        <p>คะแนนสูงสุด: <span id="final-high-score">0</span></p>
+        <button id="restart-button">เล่นใหม่</button>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById("game-container");
+        const cat = document.getElementById("cat");
+        const scoreDisplay = document.getElementById("score-value");
+        const highScoreDisplay = document.getElementById("high-score-value");
+        const popup = document.getElementById("popup");
+        const finalScore = document.getElementById("final-score");
+        const finalHighScore = document.getElementById("final-high-score");
+        const restartButton = document.getElementById("restart-button");
+
+        let catX = window.innerWidth / 2 - 40;
+        let score = 0;
+        let highScore = localStorage.getItem("highScore") || 0;
+        let gameOver = false;
+
+        highScoreDisplay.textContent = highScore;
+
+        // ควบคุมแมวด้วยการลากนิ้ว
+        let isDragging = false;
+        gameContainer.addEventListener("touchstart", (e) => {
+            isDragging = true;
+        });
+
+        gameContainer.addEventListener("touchmove", (e) => {
+            if (isDragging && !gameOver) {
+                let touch = e.touches[0];
+                catX = touch.clientX - 40;
+                catX = Math.max(0, Math.min(catX, window.innerWidth - 80));
+                cat.style.left = `${catX}px`;
+            }
+        });
+
+        gameContainer.addEventListener("touchend", () => {
+            isDragging = false;
+        });
+
+        // ฟังก์ชันสร้างไอเท็ม (กล่องนม หรือ ระเบิด)
+        function createItem(type) {
+            if (gameOver) return;
+            
+            const item = document.createElement("img");
+            item.classList.add("item");
+            item.src = type === "milk" ? "milk.png" : "bomb.png";
+            item.style.left = `${Math.random() * (window.innerWidth - 40)}px`;
+            item.style.top = "0px";
+            item.dataset.type = type;
+            gameContainer.appendChild(item);
+
+            let fallInterval = setInterval(() => {
+                if (gameOver) {
+                    clearInterval(fallInterval);
+                    item.remove();
+                    return;
+                }
+
+                item.style.top = `${item.offsetTop + 5}px`;
+
+                // ตรวจสอบการชนกับแมว
+                if (item.offsetTop + 40 >= cat.offsetTop &&
+                    item.offsetLeft >= catX && item.offsetLeft <= catX + 80) {
+
+                    if (item.dataset.type === "milk") {
+                        score++;
+                        scoreDisplay.textContent = score;
+                        
+                        // อนิเมชันแมวอ้าปากกินนม
+                        cat.src = "cat_open.png";
+                        setTimeout(() => {
+                            cat.src = "cat.png";
+                        }, 300);
+
+                    } else if (item.dataset.type === "bomb") {
+                        endGame();
+                    }
+
+                    clearInterval(fallInterval);
+                    item.remove();
+                }
+
+                // ลบไอเท็มถ้าหล่นพ้นจอ
+                if (item.offsetTop > window.innerHeight) {
+                    clearInterval(fallInterval);
+                    item.remove();
+                }
+
+            }, 20);
+        }
+
+        // ฟังก์ชันจบเกม
+        function endGame() {
+            gameOver = true;
+            
+            // แสดง popup
+            finalScore.textContent = score;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+            }
+            finalHighScore.textContent = highScore;
+            popup.style.display = "block";
+        }
+
+        // ฟังก์ชันเริ่มเกมใหม่
+        restartButton.addEventListener("click", () => {
+            document.querySelectorAll(".item").forEach(item => item.remove());
+            score = 0;
+            scoreDisplay.textContent = score;
+            gameOver = false;
+            popup.style.display = "none";
+        });
+
+        // สุ่มไอเท็มทุก 1 วินาที
+        setInterval(() => {
+            if (!gameOver) {
+                createItem(Math.random() < 0.8 ? "milk" : "bomb");
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
