@@ -44,12 +44,12 @@
 
         .hitbox {
             position: absolute;
-            bottom: 3.5rem;
+            bottom: 4.5rem;
             left: 50%;
             width: 80px;
-            height: 80px;
+            height: 10px;
             transform: translateX(-50%);
-            border: 2px dashed red; /* เส้นขอบแสดงขอบเขตชน */
+            background: rgba(255, 0, 0, 0.3); /* ให้มองเห็น hitbox */
             z-index: 2;
         }
 
@@ -110,7 +110,7 @@
     <div id="game-container">
         <div id="score">คะแนน: <span id="score-value">0</span></div>
         <div id="high-score">คะแนนสูงสุด: <span id="high-score-value">0</span></div>
-        <div class="hitbox"></div> <!-- ขอบเขตชน -->
+        <div class="hitbox"></div> <!-- จุดรับไอเทม -->
         <img id="cat" src="cat.png" alt="แมว">
         <img id="fire" src="fire.png" alt="ไฟ">
     </div>
@@ -135,7 +135,7 @@
         const finalHighScore = document.getElementById("final-high-score");
         const restartButton = document.getElementById("restart-button");
 
-        let catX = window.innerWidth / 2 - 40;
+        let catX = (window.innerWidth - 80) / 2;
         let score = 0;
         let highScore = localStorage.getItem("highScore") || 0;
         let gameOver = false;
@@ -152,7 +152,7 @@
             if (isDragging && !gameOver) {
                 let touch = e.touches[0];
                 catX = touch.clientX - 40;
-                catX = Math.max(0, Math.min(catX, window.innerWidth - 80));
+                catX = Math.max(0, Math.min(catX, window.innerWidth - 80)); // ปรับให้เลื่อนชิดขอบทั้งสองข้างได้
                 cat.style.left = `${catX}px`;
                 hitbox.style.left = `${catX}px`;
                 fire.style.left = `${catX}px`;
@@ -184,9 +184,9 @@
 
                 item.style.top = `${item.offsetTop + 5}px`;
 
-                // ตรวจสอบการชนกับแมว
+                // ตรวจสอบการชนกับ hitbox (เปลี่ยนจากตัวแมวเป็น hitbox)
                 if (item.offsetTop + 40 >= hitbox.offsetTop &&
-                    item.offsetLeft >= catX && item.offsetLeft <= catX + 80) {
+                    item.offsetLeft + 40 >= hitbox.offsetLeft && item.offsetLeft <= hitbox.offsetLeft + 80) {
 
                     if (item.dataset.type === "milk") {
                         score++;
@@ -218,11 +218,7 @@
         // ฟังก์ชันจบเกม
         function endGame() {
             gameOver = true;
-            
-            // แสดงรูปไฟทับแมว
-            fire.style.display = "block";
-
-            // แสดง popup
+            fire.style.display = "block"; // แสดงรูปไฟ
             finalScore.textContent = score;
             if (score > highScore) {
                 highScore = score;
@@ -244,7 +240,6 @@
             fire.style.display = "none";
         });
 
-        // สุ่มไอเท็มทุก 1 วินาที
         setInterval(() => {
             if (!gameOver) {
                 createItem(Math.random() < 0.8 ? "milk" : "bomb");
