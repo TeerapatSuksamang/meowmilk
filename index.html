@@ -42,6 +42,17 @@
             right: 10px;
         }
 
+        .hitbox {
+            position: absolute;
+            bottom: 3.5rem;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            transform: translateX(-50%);
+            border: 2px dashed red; /* เส้นขอบแสดงขอบเขตชน */
+            z-index: 2;
+        }
+
         #cat {
             position: absolute;
             bottom: 3.5rem;
@@ -49,13 +60,22 @@
             transform: translateX(-50%);
             width: 80px;
             transition: transform 0.1s;
-            border: 1px solid white;
+            z-index: 3;
+        }
+
+        #fire {
+            position: absolute;
+            bottom: 3.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            display: none;
+            z-index: 4;
         }
 
         .item {
             position: absolute;
             width: 40px;
-            border: 1px solid green;
         }
 
         /* Popup */
@@ -90,12 +110,14 @@
     <div id="game-container">
         <div id="score">คะแนน: <span id="score-value">0</span></div>
         <div id="high-score">คะแนนสูงสุด: <span id="high-score-value">0</span></div>
+        <div class="hitbox"></div> <!-- ขอบเขตชน -->
         <img id="cat" src="cat.png" alt="แมว">
+        <img id="fire" src="fire.png" alt="ไฟ">
     </div>
 
     <div id="popup">
         <img src="cat_cry.png" alt="">
-        <p>พี่ทำน้องตายได้ยังยังไงงง</p>
+        <p>พี่ทำน้องตายได้ยังไงงง</p>
         <p>ได้ <span id="final-score">0</span> คะแนน</p>
         <p>คะแนนสูงสุด: <span id="final-high-score">0</span></p>
         <button id="restart-button">เอาใหม่</button>
@@ -104,6 +126,8 @@
     <script>
         const gameContainer = document.getElementById("game-container");
         const cat = document.getElementById("cat");
+        const hitbox = document.querySelector(".hitbox");
+        const fire = document.getElementById("fire");
         const scoreDisplay = document.getElementById("score-value");
         const highScoreDisplay = document.getElementById("high-score-value");
         const popup = document.getElementById("popup");
@@ -130,6 +154,8 @@
                 catX = touch.clientX - 40;
                 catX = Math.max(0, Math.min(catX, window.innerWidth - 80));
                 cat.style.left = `${catX}px`;
+                hitbox.style.left = `${catX}px`;
+                fire.style.left = `${catX}px`;
             }
         });
 
@@ -159,7 +185,7 @@
                 item.style.top = `${item.offsetTop + 5}px`;
 
                 // ตรวจสอบการชนกับแมว
-                if (item.offsetTop + 40 >= cat.offsetTop &&
+                if (item.offsetTop + 40 >= hitbox.offsetTop &&
                     item.offsetLeft >= catX && item.offsetLeft <= catX + 80) {
 
                     if (item.dataset.type === "milk") {
@@ -193,6 +219,9 @@
         function endGame() {
             gameOver = true;
             
+            // แสดงรูปไฟทับแมว
+            fire.style.display = "block";
+
             // แสดง popup
             finalScore.textContent = score;
             if (score > highScore) {
@@ -200,7 +229,9 @@
                 localStorage.setItem("highScore", highScore);
             }
             finalHighScore.textContent = highScore;
-            popup.style.display = "block";
+            setTimeout(() => {
+                popup.style.display = "block";
+            }, 500);
         }
 
         // ฟังก์ชันเริ่มเกมใหม่
@@ -210,6 +241,7 @@
             scoreDisplay.textContent = score;
             gameOver = false;
             popup.style.display = "none";
+            fire.style.display = "none";
         });
 
         // สุ่มไอเท็มทุก 1 วินาที
