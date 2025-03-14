@@ -44,16 +44,18 @@
 
         #cat {
             position: absolute;
-            bottom: 3rem;
+            bottom: 3.5rem;
             left: 50%;
             transform: translateX(-50%);
             width: 80px;
             transition: transform 0.1s;
+            border: 1px solid white;
         }
 
         .item {
             position: absolute;
             width: 40px;
+            border: 1px solid green;
         }
 
         /* Popup */
@@ -92,10 +94,11 @@
     </div>
 
     <div id="popup">
-        <img src="cat_cry.png" alt="แมวร้องไห้">
-        <p>เกมจบแล้ว! คะแนนของคุณ: <span id="final-score">0</span></p>
+        <img src="cat_cry.png" alt="">
+        <p>พี่ทำน้องตายได้ยังยังไงงง</p>
+        <p>ได้ <span id="final-score">0</span> คะแนน</p>
         <p>คะแนนสูงสุด: <span id="final-high-score">0</span></p>
-        <button id="restart-button">เล่นใหม่</button>
+        <button id="restart-button">เอาใหม่</button>
     </div>
 
     <script>
