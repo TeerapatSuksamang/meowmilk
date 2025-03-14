@@ -42,35 +42,26 @@
             right: 10px;
         }
 
-        .hitbox {
-            position: absolute;
-            bottom: 4.5rem;
-            left: 50%;
-            width: 80px;
-            height: 10px;
-            transform: translateX(-50%);
-            background: rgba(255, 0, 0, 0.3); /* ให้มองเห็น hitbox */
-            z-index: 2;
-        }
-
-        #cat {
+        #cat-container {
             position: absolute;
             bottom: 3.5rem;
             left: 50%;
             transform: translateX(-50%);
             width: 80px;
+            height: 80px;
+        }
+
+        #cat, #fire {
+            position: absolute;
+            width: 100%;
+            height: auto;
             transition: transform 0.1s;
-            z-index: 3;
         }
 
         #fire {
-            position: absolute;
-            bottom: 3.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
             display: none;
-            z-index: 4;
+            top: 0;
+            left: 0;
         }
 
         .item {
@@ -110,9 +101,10 @@
     <div id="game-container">
         <div id="score">คะแนน: <span id="score-value">0</span></div>
         <div id="high-score">คะแนนสูงสุด: <span id="high-score-value">0</span></div>
-        <div class="hitbox"></div> <!-- จุดรับไอเทม -->
-        <img id="cat" src="cat.png" alt="แมว">
-        <img id="fire" src="fire.png" alt="ไฟ">
+        <div id="cat-container">
+            <img id="cat" src="cat.png" alt="แมว">
+            <img id="fire" src="fire.png" alt="ไฟ">
+        </div>
     </div>
 
     <div id="popup">
@@ -125,8 +117,8 @@
 
     <script>
         const gameContainer = document.getElementById("game-container");
+        const catContainer = document.getElementById("cat-container");
         const cat = document.getElementById("cat");
-        const hitbox = document.querySelector(".hitbox");
         const fire = document.getElementById("fire");
         const scoreDisplay = document.getElementById("score-value");
         const highScoreDisplay = document.getElementById("high-score-value");
@@ -144,7 +136,7 @@
 
         // ควบคุมแมวด้วยการลากนิ้ว
         let isDragging = false;
-        gameContainer.addEventListener("touchstart", (e) => {
+        gameContainer.addEventListener("touchstart", () => {
             isDragging = true;
         });
 
@@ -152,10 +144,8 @@
             if (isDragging && !gameOver) {
                 let touch = e.touches[0];
                 catX = touch.clientX - 40;
-                catX = Math.max(0, Math.min(catX, window.innerWidth - 80)); // ปรับให้เลื่อนชิดขอบทั้งสองข้างได้
-                cat.style.left = `${catX}px`;
-                hitbox.style.left = `${catX}px`;
-                fire.style.left = `${catX}px`;
+                catX = Math.max(0, Math.min(catX, window.innerWidth - 80)); // เลื่อนชิดขอบซ้าย-ขวาได้
+                catContainer.style.left = `${catX}px`;
             }
         });
 
@@ -184,9 +174,13 @@
 
                 item.style.top = `${item.offsetTop + 5}px`;
 
-                // ตรวจสอบการชนกับ hitbox (เปลี่ยนจากตัวแมวเป็น hitbox)
-                if (item.offsetTop + 40 >= hitbox.offsetTop &&
-                    item.offsetLeft + 40 >= hitbox.offsetLeft && item.offsetLeft <= hitbox.offsetLeft + 80) {
+                // ตรวจสอบการชนจากขอบบนของแมว
+                let catTop = catContainer.offsetTop;
+                let catLeft = catContainer.offsetLeft;
+                let catRight = catLeft + 80;
+
+                if (item.offsetTop + 40 >= catTop &&
+                    item.offsetLeft + 40 >= catLeft && item.offsetLeft <= catRight) {
 
                     if (item.dataset.type === "milk") {
                         score++;
@@ -218,7 +212,7 @@
         // ฟังก์ชันจบเกม
         function endGame() {
             gameOver = true;
-            fire.style.display = "block"; // แสดงรูปไฟ
+            fire.style.display = "block"; // แสดงรูปไฟทับแมว
             finalScore.textContent = score;
             if (score > highScore) {
                 highScore = score;
