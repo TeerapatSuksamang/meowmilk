@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
-    <!-- เห้อ :( -->
     <style>
         * {
             margin: 0;
@@ -50,7 +49,6 @@
             transform: translateX(-50%);
             width: 80px;
             height: 80px;
-            /* border: 1px solid green; */
         }
 
         #cat, #fire {
@@ -59,16 +57,12 @@
             height: auto;
             transition: transform 0.1s;
             bottom: 0;
-            /* border: 1px solid black; */
-            
         }
 
         #fire {
             display: none;
-            
             margin-left: 10%;
             width: 190%;
-            
         }
 
         .item {
@@ -76,7 +70,6 @@
             width: 50px;
         }
 
-        /* Popup */
         #popup {
             position: fixed;
             top: 50%;
@@ -120,24 +113,19 @@
     <div id="popup">
         <img src="cat_cry.png" alt="">
         <p>Why you can't save the meoww!! 😭</p>
-        </br>
         <p>You can keep <span id="final-score">0</span> box of milkk 👍</p>
-        
         <p>High milk: <span id="final-high-score">0</span></p>
-        </br>
         <button id="restart-button">Never give up😺!</button>
     </div>
 
     <audio id="milk-sound" src="milk.mp3"></audio>
     <audio id="bomb-sound" src="bomb.mp3"></audio>
-    <audio id="bg_sound" stc="bg_sound.mp3" loop></audio>
-
+    <audio id="bg_sound" src="bg_sound.mp3" loop></audio>
 
     <script>
         window.onload = () => {
-           document.getElementById("bg-music").play();
+           document.getElementById("bg_sound").play();
         };
-        
         
         const gameContainer = document.getElementById("game-container");
         const catContainer = document.getElementById("cat-container");
@@ -157,7 +145,6 @@
 
         highScoreDisplay.textContent = highScore;
 
-        // ควบคุมแมวด้วยการลากนิ้ว
         let isDragging = false;
         gameContainer.addEventListener("touchstart", () => {
             isDragging = true;
@@ -167,7 +154,7 @@
             if (isDragging && !gameOver) {
                 let touch = e.touches[0];
                 catX = touch.clientX - 40;
-                catX = Math.max(0, Math.min(catX, window.innerWidth - 80)); // เลื่อนชิดขอบซ้าย-ขวาได้
+                catX = Math.max(0, Math.min(catX, window.innerWidth - catContainer.offsetWidth));
                 catContainer.style.left = `${catX}px`;
             }
         });
@@ -176,7 +163,6 @@
             isDragging = false;
         });
 
-        // ฟังก์ชันสร้างไอเท็ม (กล่องนม หรือ ระเบิด)
         function createItem(type) {
             if (gameOver) return;
             
@@ -197,19 +183,19 @@
 
                 item.style.top = `${item.offsetTop + 5}px`;
 
-                // ตรวจสอบการชนจากขอบบนของแมว
                 let catTop = catContainer.offsetTop;
                 let catLeft = catContainer.offsetLeft;
                 let catRight = catLeft + 80;
+                let itemCenterX = item.offsetLeft + item.offsetWidth / 2;
 
-                if (item.offsetTop + 40 >= catTop &&) {
+                if (item.offsetTop + item.offsetHeight >= catTop &&
+                    itemCenterX >= catLeft && itemCenterX <= catRight) {
 
                     if (item.dataset.type === "milk") {
                         document.getElementById("milk-sound").play();
                         score++;
                         scoreDisplay.textContent = score;
-                        
-                        // อนิเมชันแมวอ้าปากกินนม
+
                         cat.src = "cat_open.png";
                         setTimeout(() => {
                             cat.src = "cat.png";
@@ -224,7 +210,6 @@
                     item.remove();
                 }
 
-                // ลบไอเท็มถ้าหล่นพ้นจอ
                 if (item.offsetTop > window.innerHeight) {
                     clearInterval(fallInterval);
                     item.remove();
@@ -233,10 +218,9 @@
             }, 20);
         }
 
-        // ฟังก์ชันจบเกม
         function endGame() {
             gameOver = true;
-            fire.style.display = "block"; // แสดงรูปไฟทับแมว
+            fire.style.display = "block";
             finalScore.textContent = score;
             if (score > highScore) {
                 highScore = score;
@@ -248,7 +232,6 @@
             }, 500);
         }
 
-        // ฟังก์ชันเริ่มเกมใหม่
         restartButton.addEventListener("click", () => {
             document.querySelectorAll(".item").forEach(item => item.remove());
             score = 0;
