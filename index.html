@@ -98,11 +98,28 @@
             border: 2px solid #FBC5C5;
             background: #FBEBEE;
         }
+
+        #toggle-sound {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 24px;
+        padding: 10px;
+        background: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
         <div id="score">🍼: <span id="score-value">0</span></div>
+        <button id="toggle-sound">
+          🔇
+        </button>
         <div id="high-score">👍: <span id="high-score-value">0</span></div>
         <div id="cat-container">
             <img id="cat" src="cat.png" alt="แมว">
@@ -118,14 +135,13 @@
         <button id="restart-button">Never give up😺!</button>
     </div>
 
-    <audio id="milk-sound" src="milk.mp3"></audio>
-    <audio id="bomb-sound" src="bomb.mp3"></audio>
-    <audio id="bg_sound" src="bg_sound.mp3" loop></audio>
+    <audio id="milk-sound" src="milk.mp3" muted></audio>
+    <audio id="bomb-sound" src="bomb.mp3" muted></audio>
+    <audio id="bg_sound" src="bg_sound.mp3" loop muted></audio>
 
     <script>
-        
-           document.getElementById("bg_sound").play();
-        
+        const bgSound = document.getElementById("bg_sound");
+        const soundButton = document.getElementById("toggle-sound");
         
         const gameContainer = document.getElementById("game-container");
         const catContainer = document.getElementById("cat-container");
@@ -142,6 +158,22 @@
         let score = 0;
         let highScore = localStorage.getItem("highScore") || 0;
         let gameOver = false;
+
+
+        soundButton.addEventListener("click", () => {
+            if (bgSound.muted) {
+                document.getElementById("bomb-sound").muted = false;
+                document.getElementById("milk-sound").muted = false;
+                bgSound.muted = false;
+                bgSound.play();
+                soundButton.textContent = "🔊";
+            } else {
+                document.getElementById("bomb-sound").muted = true;
+                document.getElementById("milk-sound").muted = true;
+                bgSound.muted = true;
+                soundButton.textContent = "🔇";
+            }
+        });
 
         highScoreDisplay.textContent = highScore;
 
