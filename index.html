@@ -130,8 +130,14 @@
 
     <audio id="milk-sound" src="milk.mp3"></audio>
     <audio id="bomb-sound" src="bomb.mp3"></audio>
+    <audio id="bg-sound" src="bg_sound.mp3" loop></audio>
 
     <script>
+
+        window.onload = () => {
+           document.getElementById("bg-music").play();
+        };
+        
         const gameContainer = document.getElementById("game-container");
         const catContainer = document.getElementById("cat-container");
         const cat = document.getElementById("cat");
@@ -140,7 +146,7 @@
         const highScoreDisplay = document.getElementById("high-score-value");
         const popup = document.getElementById("popup");
         const finalScore = document.getElementById("final-score");
-        const finalHighScore = document.getElementById("final-high-score");
+        const finalHighScore = document.getntById("final-high-score");
         const restartButton = document.getElementById("restart-button");
 
         let catX = (window.innerWidth - 80) / 2;
